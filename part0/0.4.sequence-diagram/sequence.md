@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram  
     participant browser  
     participant server  
@@ -32,3 +33,4 @@ sequenceDiagram
     deactivate server
 
     Note right of browser: The JS callback renders the fetched data on the webpage
+```
