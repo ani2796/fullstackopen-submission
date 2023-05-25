@@ -27,7 +27,7 @@ sequenceDiagram
 
     Note right of browser: The executing JS fetches JSON from server
 
-    browser->>server: GET browser->>server: https://studies.cs.helsinki.fi/exampleapp/data.json
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
     activate server
     server-->>browser: [{content: "il pippero è qualcosa che", date: "2023-05-25T10:33:40.081Z"},…]
     deactivate server
