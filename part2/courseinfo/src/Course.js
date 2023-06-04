@@ -12,10 +12,10 @@ const Content = ({ parts }) => {
   
   return(
     <>
-      {parts.map( (part, index) =>
+      {parts.map( (part) =>
           <Part 
             part={ part }
-            key={ index }
+            key={ part.id }
           />
       )}
     </>
