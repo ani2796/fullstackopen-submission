@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Header = ({ text }) => <h2>{text}</h2>
 
@@ -16,7 +17,7 @@ const NewEntry = (props) =>
     <form onSubmit={props.addPerson}>
       <div>
         name: <input value={ props.name } onChange={props.handleNameChange} /> <br />
-        phone: <input value={ props.phone } onChange={props.handlePhoneChange} />
+        number: <input value={ props.number } onChange={props.handlePhoneChange} />
       </div>
       <div>
         <button type="submit">add</button>
@@ -32,7 +33,7 @@ const Entries = ({ persons, filterValue }) =>
       .filter((person) => person.name.toLowerCase().includes(filterValue))
       .map((person) => 
         <li key={person.id}>
-          {person.name}: {person.phone}
+          {person.name}: {person.number}
         </li>)
     }
   </ul>
@@ -45,34 +46,38 @@ const App = () => {
   const [ newPhone, setNewPhone ] = useState('');
   const [ newFilter, setFilter ] = useState('');
 
+  useEffect(() => {
+    axios
+    .get("http://localhost:3001/persons")
+    .then(response => {
+      console.log("Promise success", response.data);
+      setPersons(response.data);
+    })
+  }, []);
+
+  console.log('render', persons.length, 'persons');
+
   const addPerson = (event) => {
     event.preventDefault();
-    // console.log("button clicked, ", event);
-
     const personObject = {
       name: newName,
       id: persons.length + 1,
-      phone: newPhone,
+      number: newPhone,
     }
-    // console.log("new persons: ", persons.concat(personObject));
-
     setPersons(persons.concat(personObject));
     setNewName('');
     setNewPhone('');
   };
 
   const handleNameChange = (event) => {
-    // console.log("handle name change, ", event.target.value);
     setNewName(event.target.value);
   };
 
   const handlePhoneChange = (event) => {
-    // console.log("handle phone change", event.target.value);
     setNewPhone(event.target.value);
   }
 
   const handleFilterChange = (event) => {
-    // console.log("handle filter change", event.target.value);
     setFilter(event.target.value);
   }
 
@@ -87,7 +92,7 @@ const App = () => {
       <NewEntry 
         name={newName}
         handleNameChange={handleNameChange}
-        phone={newPhone}
+        number={newPhone}
         handlePhoneChange={handlePhoneChange}
         addPerson={addPerson}
       />
