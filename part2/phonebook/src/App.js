@@ -1,43 +1,11 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const Header = ({ text }) => <h2>{text}</h2>
-
-const Filter = ({ filterValue, handleFilterChange }) => 
-  <div>
-    filter shown with 
-    <input 
-      value={ filterValue }
-      onChange={ handleFilterChange }
-    />
-  </div>
-
-const NewEntry = (props) => 
-  <div>
-    <form onSubmit={props.addPerson}>
-      <div>
-        name: <input value={ props.name } onChange={props.handleNameChange} /> <br />
-        number: <input value={ props.number } onChange={props.handlePhoneChange} />
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  </div>
-
-const Entries = ({ persons, filterValue }) => 
-<div>
-  <ul>
-    {
-      persons
-      .filter((person) => person.name.toLowerCase().includes(filterValue))
-      .map((person) => 
-        <li key={person.id}>
-          {person.name}: {person.number}
-        </li>)
-    }
-  </ul>
-</div>
+import numberService from './services/numbers'
+import Header from './components/Header'
+import NewEntry from './components/NewEntry'
+import Entries from './components/Entries'
+import Filter from './components/Filter'
+import { Notification, Message } from './components/Notification';
+import './styles/index.css'
 
 const App = () => {
 
@@ -45,14 +13,15 @@ const App = () => {
   const [ newName, setNewName ] = useState('');
   const [ newPhone, setNewPhone ] = useState('');
   const [ newFilter, setFilter ] = useState('');
+  const [ notification, setNotification ] = useState(new Message(""));
 
   useEffect(() => {
-    axios
-    .get("http://localhost:3001/persons")
-    .then(response => {
-      console.log("Promise success", response.data);
-      setPersons(response.data);
-    })
+    numberService
+    .getAll()
+    .then(initialNumbers => {
+      console.log("Promise success", initialNumbers);
+      setPersons(initialNumbers);
+    })    
   }, []);
 
   console.log('render', persons.length, 'persons');
@@ -61,12 +30,17 @@ const App = () => {
     event.preventDefault();
     const personObject = {
       name: newName,
-      id: persons.length + 1,
       number: newPhone,
     }
-    setPersons(persons.concat(personObject));
-    setNewName('');
-    setNewPhone('');
+
+    numberService
+      .add(personObject)
+      .then(responseNumber => {
+        setPersons(persons.concat(responseNumber));
+        setNewName('');
+        setNewPhone('');
+        setNotification(new Message(`Number added`, "success"));
+      });
   };
 
   const handleNameChange = (event) => {
@@ -81,10 +55,39 @@ const App = () => {
     setFilter(event.target.value);
   }
 
+  const handlePhoneDelete = (id) => {
+    numberService
+      .remove(id)
+      .then(response => {
+        console.log("response: ", response.status);
+        if(response.status === 200) {
+          let deletedPerson;
+          setPersons(persons.filter(person => {
+            if(person.id !== id)
+              return true;
+            deletedPerson = person;
+            return false;
+          }));
+          setNotification(new Message(`${deletedPerson?.name}'s phone deleted...`, "success"));
+        } else {
+          console.log("status error: ", response.status);
+        }
+      })
+      .catch(error => {
+        console.log("Error: ", error);
+        setNotification(new Message("Phone already deleted on server...", "error"));
+        setPersons(persons.filter(person => person.id !== id))
+      })
+    // console.log("Updated persons: ", persons);
+
+  }
+
   return (
     <div>
       <Header text="Phonebook" />
-      
+      <Notification 
+        message={notification}
+      />
       <Header text="Search" />
       <Filter filterValue={ newFilter } handleFilterChange={ handleFilterChange }/>
       
@@ -96,14 +99,15 @@ const App = () => {
         handlePhoneChange={handlePhoneChange}
         addPerson={addPerson}
       />
-      
+
       <Header text="Numbers" />
       <Entries 
         persons={persons}
         filterValue={newFilter}
+        handlePhoneDelete={handlePhoneDelete}
       />
     </div>
   )
 }
 
-export default App
+export default App;
