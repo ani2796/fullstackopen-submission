@@ -30,7 +30,7 @@ const App = () => {
     event.preventDefault();
     const personObject = {
       name: newName,
-      number: newPhone,
+      phone: newPhone,
     }
 
     numberService
@@ -39,13 +39,13 @@ const App = () => {
         setPersons(persons.concat(responseNumber));
         setNewName('');
         setNewPhone('');
-        setNotification(new Message(`Number added`, "success"));
+        setNotificationThenTimeout(`Number added`, "success");
       });
   };
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
-  };
+  }; 
 
   const handlePhoneChange = (event) => {
     setNewPhone(event.target.value);
@@ -55,12 +55,17 @@ const App = () => {
     setFilter(event.target.value);
   }
 
+  const setNotificationThenTimeout = (msgString, msgType) => {
+    setNotification(new Message(msgString, msgType));
+    setTimeout(() => setNotification(new Message("", null)), 3000);
+  }
+
   const handlePhoneDelete = (id) => {
     numberService
       .remove(id)
       .then(response => {
         console.log("response: ", response.status);
-        if(response.status === 200) {
+        if(response.status === 204) {
           let deletedPerson;
           setPersons(persons.filter(person => {
             if(person.id !== id)
@@ -68,14 +73,14 @@ const App = () => {
             deletedPerson = person;
             return false;
           }));
-          setNotification(new Message(`${deletedPerson?.name}'s phone deleted...`, "success"));
+          setNotificationThenTimeout(`${deletedPerson?.name}'s phone deleted...`, "success");
         } else {
-          console.log("status error: ", response.status);
+          console.log("status not dealt with: ", response.status);
         }
       })
       .catch(error => {
         console.log("Error: ", error);
-        setNotification(new Message("Phone already deleted on server...", "error"));
+        setNotificationThenTimeout("Phone already deleted on server...", "error");
         setPersons(persons.filter(person => person.id !== id))
       })
     // console.log("Updated persons: ", persons);
@@ -95,7 +100,7 @@ const App = () => {
       <NewEntry 
         name={newName}
         handleNameChange={handleNameChange}
-        number={newPhone}
+        phone={newPhone}
         handlePhoneChange={handlePhoneChange}
         addPerson={addPerson}
       />
