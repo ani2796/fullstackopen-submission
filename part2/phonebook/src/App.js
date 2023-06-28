@@ -45,7 +45,7 @@ const App = () => {
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
-  }; 
+  };
 
   const handlePhoneChange = (event) => {
     setNewPhone(event.target.value);

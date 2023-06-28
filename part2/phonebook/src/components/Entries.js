@@ -3,7 +3,7 @@ const Entries = ({ persons, filterValue, handlePhoneDelete }) =>
   <ul>
     {
       persons
-      .filter((person) => person.name.toLowerCase().includes(filterValue))
+      .filter((person) => person.name.toLowerCase().includes(filterValue.toLowerCase()))
       .map((person) => 
         <li key={person.id}>
           {person.name}: {person.phone}

@@ -1,5 +1,7 @@
 const express = require('express')
 const cors = require('cors');
+const Note = require('./models/note');
+
 const app = express()
 
 app.use(cors())
@@ -28,7 +30,9 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-    response.json(notes)
+    Note.find({}).then(notes => {
+        response.json(notes);
+    })
   })
 
 app.get('/api/notes/:id', (request, response) => {
@@ -84,13 +88,6 @@ app.put('/api/notes/:id', (request, response) => {
 })
 
 app.post('/api/notes', (request, response) => {  
-    // ***
-    // Function: Note id = current max id + 1
-    // ***
-    // Note: This method not recommended bc it can be used
-    // to store any properties and empty objects. Also, ID  
-    // generation and note addition are done in the same function.
-    // We will change this soon.
 
     console.log("Posting to /api/notes");
     console.log("Notes: ", notes);
