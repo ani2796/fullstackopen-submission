@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 const cors = require('cors');
 const Note = require('./models/note');
@@ -36,15 +38,11 @@ app.get('/api/notes', (request, response) => {
   })
 
 app.get('/api/notes/:id', (request, response) => {
-const id = Number(request.params.id);
-console.log("id type", typeof id);
-const note = notes.find(note => note.id === id);
-
-if(note) {
-    response.json(note);
-} else {
-    response.status(404).end();
-}
+    Note.findById(request.params.id).then(note => {
+        response.json(note);
+    }).catch(error => {
+        console.log("error: ", error.message);
+    });
 })
 
 const generateId = () => {
@@ -55,36 +53,30 @@ const generateId = () => {
 }
 
 app.delete('/api/notes/:id', (request, response) => {
-    console.log("reached /api/notes", id);
-    
-    const id = Number(request.params.id);
-    notes = notes.filter(note => note.id !== id);
-
-    response.status(204).end();
+    // console.log("reached /api/notes", id);
+    console.log("id to be deleted: ", request.params.id);
+    Note.findByIdAndDelete(request.params.id).then(deletedNote => {
+        console.log("deleted note: ", deletedNote);
+        response.status(204).end();
+    }).catch(error => {
+        console.log("error while deleting note: ", error.message);
+        response.status(500).end();
+    });
 })
 
 app.put('/api/notes/:id', (request, response) => {
-    const body = request.body;
-    const id = Number(request.params.id);
-    const noteToUpdate = notes.find(n => n.id === id);
 
-    console.log("Note to update: ", noteToUpdate);
-    if(!noteToUpdate) {
-        response.status(404).json({
-            error: "Note not found in the server",
-        });
-        return;
-    }
-
-    const newNote = {
-        id: noteToUpdate.id,
-        content: body.content,
-        important: body.important,
-    }
-
-    console.log("new note: ", newNote);
-    notes = notes.map(n => (n.id === id) ? newNote : n);
-    response.json(newNote);
+    // console.log("Put request.body: ", request.body);   
+    Note.findByIdAndUpdate(request.params.id, request.body)
+    .then(note => {
+        console.log("Update successful, returned object: ", note);
+            response.json(note);
+        })
+        .catch(error => {
+            console.log("Update error: ", error.message);
+            response.status(404).end();
+        })
+    
 })
 
 app.post('/api/notes', (request, response) => {  
@@ -101,21 +93,22 @@ app.post('/api/notes', (request, response) => {
         return;
     }
 
-    console.log("body important: ", body.important);
-    console.log("body.important || false: ", (body.important || false))
-    const note = {
+    // console.log("body important: ", body.important);
+    // console.log("body.important || false: ", (body.important || false))
+    const note = new Note({
         content: body.content,  
         important: (body.important || false),
         id: generateId(),
-    };
-
-    notes = notes.concat(note);
+    });
     
-    console.log("New notes: ", notes);
-    response.json(note);
+    note.save().then(savedNote => {
+        response.json(savedNote);
+    }).catch(error => {
+        console.log("Save note error: ", error.message);
+    });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });

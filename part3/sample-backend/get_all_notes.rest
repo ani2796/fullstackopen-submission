@@ -1,0 +1,24 @@
+GET http://localhost:3001/api/notes/
+
+###
+
+POST http://localhost:3001/api/notes/
+Content-Type: application/json
+
+{
+    "content": "this is note important",
+    "important": false
+}
+
+###
+
+DELETE http://localhost:3001/api/notes/649b8d62e26e96353d06fd87
+
+###
+
+PUT http://localhost:3001/api/notes/649b8ecd1028f3b5c05f2
+Content-Type: application/json
+
+{
+    "important": true
+}
