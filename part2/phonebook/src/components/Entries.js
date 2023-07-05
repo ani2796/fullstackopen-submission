@@ -5,7 +5,7 @@ const Entries = ({ persons, filterValue, handlePhoneDelete }) =>
       persons
       .filter((person) => person.name.toLowerCase().includes(filterValue.toLowerCase()))
       .map((person) => 
-        <li key={person._id}>
+        <li key={person.id}>
           {person.name}: {person.phone}
           <button onClick={() => handlePhoneDelete(person.id)}>
             delete

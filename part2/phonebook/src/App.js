@@ -66,16 +66,20 @@ const App = () => {
       .then(response => {
         console.log("response: ", response.status);
         if(response.status === 204) {
+          
           let deletedPerson;
           setPersons(persons.filter(person => {
-            if(person.id !== id)
-              return true;
-            deletedPerson = person;
+            console.log("filtering person: ", person);
+            if(person.id !== id) return true;
+
+            deletedPerson = person.name;
+            console.log("deleted person: ", deletedPerson);
             return false;
           }));
-          setNotificationThenTimeout(`${deletedPerson?.name}'s phone deleted...`, "success");
+
+          setNotificationThenTimeout(`${deletedPerson}'s phone deleted...`, "success");
         } else {
-          console.log("status not dealt with: ", response.status);
+          console.log("Response received, but status not dealt with...", response.status);
         }
       })
       .catch(error => {

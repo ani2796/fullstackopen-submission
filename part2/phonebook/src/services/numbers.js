@@ -12,6 +12,7 @@ const add = (newObject) => {
 }
 
 const remove = (id) => {
+    console.log("Deleted person's id: ", id);
     const request = axios.delete(`${baseUrl}/${id}`);
     console.log("Deleted person's response");
     return request;
